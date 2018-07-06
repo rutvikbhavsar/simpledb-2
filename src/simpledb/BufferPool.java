@@ -61,7 +61,16 @@ public class BufferPool {
 			throws TransactionAbortedException, DbException {
 		Page page = id2page.get(pid);
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		if (page != null) {
+			return page;
+		} else {
+			if (id2page.size() >= numPages) {
+				throw new DbException("Buffer pool is full already!");
+			}
+			Page newpage = Database.getCatalog().getDbFile(pid.getTableId()).readPage(pid);
+			id2page.put(pid, newpage);
+			return newpage;
+		}
 	}
 
 	/**

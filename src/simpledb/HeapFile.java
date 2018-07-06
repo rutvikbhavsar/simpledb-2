@@ -66,7 +66,16 @@ public class HeapFile implements DbFile {
 	// see DbFile.java for javadocs
 	public Page readPage(PageId pid) {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		byte[] page = new byte[BufferPool.PAGE_SIZE];
+		try {
+			RandomAccessFile fin = new RandomAccessFile(file, "r");
+			fin.seek(pid.pageno() * page.length);
+			fin.read(page);
+			fin.close();
+			return new HeapPage((HeapPageId) pid, page);
+		} catch (IOException e) {
+			throw new NoSuchElementException("Can't find element in file.");
+		}
 	}
 
 	// see DbFile.java for javadocs
@@ -87,6 +96,7 @@ public class HeapFile implements DbFile {
 			throws DbException, IOException, TransactionAbortedException {
 		// some code goes here
 		// not necessary for assignment1
+		
 		return null;
 	}
 
@@ -94,6 +104,7 @@ public class HeapFile implements DbFile {
 	public Page deleteTuple(TransactionId tid, Tuple t) throws DbException, TransactionAbortedException {
 		// some code goes here
 		// not necessary for assignment1
+		
 		return null;
 	}
 
@@ -123,13 +134,30 @@ public class HeapFile implements DbFile {
 			@Override
 			public boolean hasNext() throws DbException, TransactionAbortedException {
 				// some code goes here
-				throw new UnsupportedOperationException("Implement this");
+				if (iterator == null)
+					return false;
+				else if (iterator.hasNext())
+					return true;
+				else {
+					do {
+						if (nextPageID >= numPages()) {
+							iterator = null;
+							return false;
+						}
+						iterator = ((HeapPage) Database.getBufferPool().getPage(tid,
+								new HeapPageId(getId(), nextPageID++), Permissions.READ_WRITE)).iterator();
+					} while (!iterator.hasNext());
+					return true;
+				}
 			}
 
 			@Override
 			public Tuple next() throws DbException, TransactionAbortedException, NoSuchElementException {
 				// some code goes here
-				throw new UnsupportedOperationException("Implement this");
+				if (hasNext())
+					return iterator.next();
+				else
+					throw new NoSuchElementException("There is no tuple available!");
 			}
 
 			@Override

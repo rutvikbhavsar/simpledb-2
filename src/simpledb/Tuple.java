@@ -89,6 +89,9 @@ public class Tuple {
 	 */
 	public String toString() {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		String result = "";
+		for (int i = 0; i < fields.length; i++)
+			result += ((i > 0 ? "|" : "") + fields[i]);
+		return result;
 	}
 }

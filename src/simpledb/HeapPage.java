@@ -93,7 +93,20 @@ public class HeapPage implements Page {
 	 */
 	public Tuple getTuple(int entryID) {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		if (entryID < 0 || entryID >= entryCount())
+			return null;
+		else {
+			int location = tupleLocation(entryID);
+			if (location == -1)
+				return null;
+			else {
+				DataInputStream in = new DataInputStream(
+						new ByteArrayInputStream(data, location, data.length - location));
+				Tuple t = createTuple(in);
+				t.setRecordId(new RecordId(pid, entryID));
+				return t;
+			}
+		}
 	}
 
 	/**
@@ -103,7 +116,14 @@ public class HeapPage implements Page {
 	 */
 	public Iterator<Tuple> iterator() {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		LinkedList<Tuple> tuples = new LinkedList<Tuple>();
+		int count = entryCount();
+		for (int i = 0; i < count; i++) {
+			Tuple t = getTuple(i);
+			if (t != null)
+				tuples.add(t);
+		}
+		return tuples.iterator();
 	}
 
 	/**
@@ -117,7 +137,12 @@ public class HeapPage implements Page {
 	 */
 	public void deleteTuple(Tuple t) throws DbException {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		RecordId rID = t.getRecordId();
+		int entryID = rID.tupleno();
+		if (rID.getPageId().equals(pid) && entryID < entryCount() && tupleLocation(entryID) != -1)
+			saveTupleLocation(entryID, -1);
+		else
+			throw new DbException("Invalid deletion of " + t);
 	}
 
 	/**
@@ -131,7 +156,16 @@ public class HeapPage implements Page {
 	 */
 	public void addTuple(Tuple t) throws DbException {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		byte[] b = toByteArray(t);
+		if (freeSpaceSize() < b.length + 4)
+			throw new DbException("No space!");
+		// TODO compaction
+		int count = entryCount();
+		int location = endOfFreeSpace() - b.length;
+		System.arraycopy(b, 0, data, location, b.length);
+		saveTupleLocation(count, location);
+		saveEntryCount(count + 1);
+		t.setRecordId(new RecordId(pid, count));
 	}
 
 	/**
@@ -264,7 +298,7 @@ public class HeapPage implements Page {
 	 */
 	protected int entryCount() {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		return readInt(data, 0);
 	}
 
 	/**
@@ -276,7 +310,7 @@ public class HeapPage implements Page {
 	 */
 	protected int tupleLocation(int entryID) {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		return readInt(data, 4 + 4 * entryID);
 	}
 
 	/**
@@ -341,6 +375,7 @@ public class HeapPage implements Page {
 	protected void compact() {
 		// some code goes here
 		// not necessary for assignment1
+		throw new UnsupportedOperationException("Implement this");
 	}
 
 }

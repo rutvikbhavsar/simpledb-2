@@ -122,7 +122,9 @@ public class TupleDesc {
 	 */
 	public Type getType(int i) throws NoSuchElementException {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		if (i >= 0 && i < types.length)
+			return types[i];
+		throw new NoSuchElementException("invalid type index");
 	}
 
 	/**
@@ -164,6 +166,12 @@ public class TupleDesc {
 	 */
 	public String toString() {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		String s = "";
+		for (int i = 0; i < types.length; i++) {
+			s += ((i > 0 ? "|" : "") + types[i].toString());
+			if (names[i] != null)
+				s += "(" + names[i] + ")";
+		}
+		return s;
 	}
 }

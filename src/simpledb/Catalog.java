@@ -74,7 +74,11 @@ public class Catalog {
 	 */
 	public int getTableId(String name) {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		Integer tableID = name2tableID.get(name);
+		if (tableID == null)
+			throw new NoSuchElementException();
+		else
+			return tableID;
 	}
 
 	/**
@@ -87,7 +91,11 @@ public class Catalog {
 	 */
 	public TupleDesc getTupleDesc(int tableid) throws NoSuchElementException {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		TupleDesc desc = tableID2desc.get(tableid);
+		if (desc == null)
+			throw new NoSuchElementException();
+		else
+			return desc;
 	}
 
 	/**
@@ -100,7 +108,11 @@ public class Catalog {
 	 */
 	public DbFile getDbFile(int tableid) throws NoSuchElementException {
 		// some code goes here
-		throw new UnsupportedOperationException("Implement this");
+		DbFile dbFile = tableID2dbFile.get(tableid);
+		if (dbFile == null)
+			throw new NoSuchElementException();
+		else
+			return dbFile;
 	}
 
 	/**
@@ -145,7 +157,7 @@ public class Catalog {
 		// some code goes here
 		return null;
 	}
-
+	
 	/**
 	 * Reads the schema from a file and creates the appropriate tables in the database.
 	 * 
